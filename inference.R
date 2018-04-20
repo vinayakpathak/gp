@@ -18,3 +18,6 @@ vector[M] y[N];
 data_list <- list(D = D, M = M, N = N, sigma = sigma, y = df)
 fit <- stan(file = "inference.stan", data = data_list, cores = 1, chains = 2, iter = 2000)
 fit_data <- as.data.frame(fit)
+
+summary(fit_data)
+

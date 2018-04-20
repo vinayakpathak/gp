@@ -22,12 +22,11 @@ model {
 }
 
 generated quantities {
-  vector[D] z_sim[N];
-  vector[M] y_sim[N];
-  for (i in 1:N) {
-    z_sim[i] = multi_normal_rng(rep_vector(0, D), 
+  vector[D] z_sim;
+  vector[M] y_sim;
+  z_sim = multi_normal_rng(rep_vector(0, D), 
                                  diag_matrix(rep_vector(1, D)));
-    y_sim[i] = multi_normal_rng(W*z[i]+mu, 
+  y_sim = multi_normal_rng(W*z+mu, 
                                  diag_matrix(rep_vector(sigma*sigma, M)));
   }
 }

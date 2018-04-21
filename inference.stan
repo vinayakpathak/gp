@@ -7,6 +7,10 @@ data {
   vector[M] y[N];
 }
 
+transformed data {
+  print(y[1]); //for debugging
+}
+
 parameters {
   matrix[M, D] W;
   vector[M] mu;
@@ -15,18 +19,16 @@ parameters {
 }
 
 model {
-  for (i in 1:N) {
-    z[i] ~ multi_normal(rep_vector(0, D), diag_matrix(rep_vector(1, D)));
+  vector[D] z_mean[N];
+  z_mean = rep_array(rep_vector(0, D), N);
+  z ~ multi_normal(z_mean, diag_matrix(rep_vector(1, D)));
+  for (i in 1:N)
     y[i] ~ multi_normal(W*z[i]+mu, diag_matrix(rep_vector(sigma*sigma, M)));
-  }
 }
 
 generated quantities {
   vector[D] z_sim;
   vector[M] y_sim;
-  z_sim = multi_normal_rng(rep_vector(0, D), 
-                                 diag_matrix(rep_vector(1, D)));
-  y_sim = multi_normal_rng(W*z+mu, 
-                                 diag_matrix(rep_vector(sigma*sigma, M)));
-  }
+  z_sim = multi_normal_rng(rep_vector(0, D), diag_matrix(rep_vector(1, D)));
+  y_sim = multi_normal_rng(W*z_sim+mu, diag_matrix(rep_vector(sigma*sigma, M)));
 }

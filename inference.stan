@@ -14,12 +14,12 @@ transformed data {
 parameters {
   matrix[M, D] W;
   vector[M] mu;
-
   vector[D] z[N];
 }
 
 model {
   vector[D] z_mean[N];
+  
   z_mean = rep_array(rep_vector(0, D), N);
   z ~ multi_normal(z_mean, diag_matrix(rep_vector(1, D)));
   for (i in 1:N)

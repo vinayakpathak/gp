@@ -4,7 +4,7 @@ df <- read.csv("pca.csv")
 xs <- c(0, 3, 6, 9, 12, 15, 18, 21, 24)
 plot_curves(xs, df)
 
-D <- 2
+D <- 3
 M <- 9
 N <- nrow(df)
 sigma <- 0.1

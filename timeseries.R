@@ -13,3 +13,12 @@ plot(dt, trades2y$Column3, xaxt="n", cex=0.2)
 
 trades2y$DateTime
 ?plot
+
+
+
+N <- length(trades2y)
+y <- trades2y$Column3
+t <-
+
+real<lower=0> vol;
+fit <- stan(file = "inference.stan", data = data_list, chains = 2, iter = 2000)

@@ -30,7 +30,7 @@ a_vol <- 0.001
 b_vol <- 0.001
 a_noise <- 0.001
 b_noise <- 0.001
-data_list <- list(N = N, y = y, t = t, vol = vol, vol_init = vol_init, noise = noise,
+data_list <- list(N = N, y = y, t = t, vol_init = vol_init, 
                   a_vol = a_vol, b_vol = b_vol, a_noise = a_noise, b_noise = b_noise)
 fit <- stan(file = "simple.stan", data = data_list, chains = 2, iter = 3000)
 fit_data <- as.data.frame(fit)

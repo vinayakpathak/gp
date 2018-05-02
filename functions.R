@@ -1,4 +1,5 @@
 library(rstan)
+library(dplyr)
 
 rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores())
@@ -8,4 +9,9 @@ plot_curves <- function(xs, df) {
   clr1 <- rgb(1,0,0)
   plot(xs, df[1, ], "l", ylim = c(-1, 5), col=clr1)
   for (i in seq(1, nrow(df))) {lines(xs, df[i, ], col=clr)}
+}
+
+plot_series <- function(df) {
+  dt <- strptime(df$DateTime, format="%d/%m/%Y %H:%M:%OS")
+  plot(dt, df$z, xaxt="n", cex=0.2)
 }

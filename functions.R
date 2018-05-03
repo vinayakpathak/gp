@@ -1,5 +1,6 @@
 library(rstan)
 library(dplyr)
+library(ggplot2)
 
 rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores())
@@ -14,4 +15,12 @@ plot_curves <- function(xs, df) {
 plot_series <- function(df) {
   dt <- strptime(df$DateTime, format="%d/%m/%Y %H:%M:%OS")
   plot(dt, df$z, xaxt="n", cex=0.2)
+}
+
+quantSmall <- function(x) {
+  quantile(x, probs = c(0.001))
+}
+
+quantBig <- function(x) {
+  quantile(x, probs = c(0.999))
 }

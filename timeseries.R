@@ -32,14 +32,16 @@ a_vol <- 0.0001
 b_vol <- 0.0001
 a_noise <- 0.0001
 b_noise <- 0.0001
-colnames(trades2y)
 N_Days <- length(unique(trades2y$date))
-trades["Date"] <- as.Date(trades$date, "%d/%m/%Y")
-k <- trades %>%
+N_Days
+trades2y["Date"] <- as.Date(trades2y$date, "%d/%m/%Y")
+k <- trades2y %>%
   group_by(Date) %>%
   summarise(n()) %>%
+  arrange(Date)
 
-data_list <- list(N = N, y = y, t = t, vol_init = vol_init, 
+data_list <- list(N = N, y = y, t = t, vol_init = vol_init, K = k$`n()`, 
+                  N_Days = N_Days,
                   a_vol = a_vol, b_vol = b_vol, a_noise = a_noise, b_noise = b_noise)
 fit <- stan(file = "simple.stan", data = data_list, chains = 2, iter = 3000)
 fit_data <- as.data.frame(fit)

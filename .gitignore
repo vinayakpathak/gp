@@ -1,4 +1,4 @@
 .ipynb_checkpoints/
 .Rhistory
-.rds
+*.rds
 .RData

@@ -3,12 +3,12 @@ source("functions.R")
 trades <- read.csv("trades.csv")
 trades["DateTime"] <- paste(trades$date, trades$TimeStamp)
 trades <- trades %>% filter(date != '04/04/2018')
-# trades <- trades %>% filter(date %in% c('21/03/2018', '20/03/2018', '19/03/2018'))
-trades <- trades %>% filter(date %in% c('21/03/2018'))
+trades <- trades %>% filter(date %in% c('21/03/2018', '20/03/2018', '19/03/2018'))
+# trades <- trades %>% filter(date %in% c('21/03/2018'))
 trades
 trades2y <- trades %>% 
   filter(alias == "CA2Y") %>%
-  select('DateTime', 'date', 'Column3', 'alias')
+  select('DateTime', 'date', 'Column3', 'alias', 'QtyNominal')
 
 options(digits.secs=3)
 dt <- strptime(trades2y$DateTime, format="%d/%m/%Y %H:%M:%OS")
@@ -31,11 +31,13 @@ y <- trades2y$Column3
 y
 t <- trades2y$TimeDiff
 t
+qty <- trades2y$QtyNominal/1e6
+qty
 vol_init <- 0.0000001
-a_vol <- 0.01
-b_vol <- 1000
-# a_vol <- 0.0001
-# b_vol <- 0.0001
+# a_vol <- 1
+# b_vol <- 1e-5
+a_vol <- 0.0001
+b_vol <- 0.0001
 # x = seq(0.1, 20, by = 0.001)
 # plot(x, dgamma(x, shape = a_vol, rate = b_vol))
 samples <- rgamma(1000000, shape = a_vol, rate = b_vol)
@@ -43,10 +45,10 @@ mean(samples)
 sd(samples)
 sd(samples) * sd(samples)
 
-a_noise <- 1
-b_noise <- 100
-#a_noise <- 0.0001
-#b_noise <- 0.0001
+a_noise <- 0.25
+b_noise <- 0.0025
+# a_noise <- 0.0001
+# b_noise <- 0.0001
 samples <- rgamma(1000000, shape = a_noise, rate = b_noise)
 mean(samples)
 sd(samples)
@@ -65,11 +67,14 @@ k$`n()`
 #array(k$`n()`, dim = 1)
 vol <- 1e10
 vol
-noise <- 10000
+noise <- 100
 noise
-data_list <- list(N = N, y = y, t = t, vol_init = vol_init, K = array(k$`n()`, dim = 1),
-                  N_Days = N_Days,
-                  a_vol = a_vol, b_vol = b_vol, a_noise = a_noise, b_noise = b_noise)
+# data_list <- list(N = N, y = y, t = t, vol_init = vol_init, K = array(k$`n()`, dim = 1),
+                  # N_Days = N_Days, qty = qty,
+                  # a_vol = a_vol, b_vol = b_vol, a_noise = a_noise, b_noise = b_noise)
+data_list <- list(N = N, y = y, t = t, vol_init = vol_init, K = k$`n()`,
+                  N_Days = N_Days, qty = qty,
+                  a_vol = a_vol, b_vol = b_vol, noise = noise)
 # data_list <- list(N = N, y = y, t = t, vol_init = vol_init, K = array(k$`n()`, dim=1),
                   # N_Days = N_Days, vol = vol, noise = noise)
 fit <- stan(file = "simple.stan", data = data_list, chains = 2, iter = 3000, 
@@ -79,7 +84,7 @@ check_treedepth(fit)
 check_energy(fit)
 check_divergences(fit)
 fit_data <- as.data.frame(fit)
-
+mean(fit_data$vol)
 colnames(fit_data)
 length(colnames(fit_data))
 
@@ -104,10 +109,11 @@ trades2y %>%
 
 trades2y %>% 
   ggplot(aes(x = dt)) +
-  geom_point(aes(y = Column3)) +
+  geom_point(aes(y = Column3, size = QtyNominal)) +
   geom_ribbon(aes(ymin = z5, ymax = z95, alpha = 0.3))
 View(trades2y)
 
+View(trades2y)
 trades2y$z
 x <- trades2y %>% filter(grepl("21/03/2018", DateTime))
 plot_series(trades2y)
@@ -135,6 +141,6 @@ summary(sqrt(1/fit_data$noise))
 colnames(x)
 
 
-options(max.print=10000)
+options(max.print=100000)
 library(shinystan)
 install.packages("shinystan")

@@ -1,6 +1,7 @@
 library(rstan)
 library(dplyr)
 library(ggplot2)
+library(shinystan)
 
 rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores())
@@ -18,9 +19,9 @@ plot_series <- function(df) {
 }
 
 quantSmall <- function(x) {
-  quantile(x, probs = c(0.2))
+  quantile(x, probs = c(0.05))
 }
 
 quantBig <- function(x) {
-  quantile(x, probs = c(0.8))
+  quantile(x, probs = c(0.95))
 }

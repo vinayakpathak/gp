@@ -39,7 +39,7 @@ transformed parameters {
       
   z[1] = z_std[1];
   for (i in 2:N) {
-    z[i] = z[i-1] + (t[i] / vol + vol_init) * z_std[i];
+    z[i] = z[i-1] + sqrt(t[i]*vol*vol + vol_init) * z_std[i];
   }
 }
 

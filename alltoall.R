@@ -10,7 +10,7 @@ trades <- trades %>% mutate(Inst = if_else(alias=="CA2Y", 1,
 # trades <- trades %>% filter(date %in% c('21/03/2018', '20/03/2018', '19/03/2018'))
 trades <- trades %>% filter(date %in% c('21/03/2018'))
 
-trades <- head(trades, 100)
+trades <- head(trades, 10)
 nrow(trades)
 
 options(digits.secs=3)
@@ -23,6 +23,7 @@ for (i in 2:nrow(trades)) {
 
 trades["TimeDiff"] <- timeDiff
 trades
+nrow(trades[trades$TimeDiff <= 0,])
 
 colnames(trades)
 
@@ -34,7 +35,7 @@ N <- nrow(trades)
 N
 M <- length(unique(trades$alias))
 M
-D <- 3
+D <- 1
 y <- trades$Column3
 y
 inst <- trades$Inst
@@ -44,8 +45,8 @@ t
 qty <- trades$QtyNominal/1e6
 qty
 vol_init <- 1e-8
-a_vol <- 0.001
-b_vol <- 0.001
+a_vol <- 1
+b_vol <- 1
 noise <- rep(100, M)
 noise
 beta <- 0.001
@@ -114,14 +115,21 @@ trades %>%
 
 
 fit_data <- as.data.frame(fit)
+mean(fit_data$`w[1,1]`)
+sd(fit_data$`w[1,1]`)
+mean(fit_data$`alpha[1]`)
+mean(fit_data$`alpha[2]`)
+mean(fit_data$`alpha[3]`)
+mean(fit_data$vol)
+sd(fit_data$vol)
 
 params <- as.data.frame(extract(fit, permuted=FALSE))
 divergent <- get_sampler_params(fit, inc_warmup=FALSE)[[1]][, 'divergent__']
 params$divergent <- divergent
 div_params <- params[params$divergent == 1,]
 nondiv_params <- params[params$divergent == 0,]
-plot(nondiv_params$`chain:1.mu[1]`, nondiv_params$`chain:1.w_std[1,1]`)
-points(div_params$`chain:1.mu[1]`, div_params$`chain:1.w_std[1,1]`, col="green")
+plot(nondiv_params$`chain:1.alpha[1]`, nondiv_params$`chain:1.w_std[1,1]`)
+points(div_params$`chain:1.alpha[1]`, div_params$`chain:1.w_std[1,1]`, col="green")
 
 ?gsub
 params$iter <- 1:700

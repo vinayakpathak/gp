@@ -5,6 +5,17 @@ library(shinystan)
 
 rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores())
+options(max.print=100000)
+
+insts <- function(s) {
+  if (s == "CA2Y") { 
+    return(1)
+  } else if (s == "CA5Y") {
+    return(2)
+  } else if (s == "CA10Y") {
+    return(3)
+  } else return(4)
+}
 
 plot_curves <- function(xs, df) {
   clr <- rgb(0,0,0,alpha = 0.03)

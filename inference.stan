@@ -22,7 +22,7 @@ parameters {
   vector[D] z[N];
   vector[M] w[D];
   real<lower=0> tau;
-  vector<lower=0>[D] alpha;
+  positive_ordered[D] alpha;
 }
 
 transformed parameters {

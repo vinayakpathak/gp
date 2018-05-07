@@ -9,33 +9,37 @@ data {
   real<lower=0> qty[N];  //quantitiy traded
   
   real<lower=0> vol_init;  //base vol to add when time gap is close to 0
-  real a_vol;  //parameters for gamma prior on vol
-  real b_vol;  //parameters for gamma prior on vol
+  // real a_vol;  //parameters for gamma prior on vol
+  // real b_vol;  //parameters for gamma prior on vol
+  real<lower=0> vol;
   real noise[M];  //how noisy is measurement on each instrument
   real beta;  //precision for mu
   real a_alpha;  //parameter for gamma prior for precision of elements of W
   real b_alpha;  //parameter for gamma prior for precision of elements of W
+  
+  // vector[M] w_prior_mean[D];
+  matrix[M, D] W;
 }
 
 parameters {
   vector[D] z_std[N];
-  real<lower=0> vol;
+  // real<lower=0> vol;
   vector[M] mu;
-  vector[M] w_std[D];
-  vector<lower=0>[D] alpha;
+  // vector[M] w_std[D];
+  positive_ordered[D] alpha;
 }
 
 transformed parameters {
-  matrix[M, D] W;
+  // matrix[M, D] W;
   vector[D] z[N];
-  vector[M] w[D];
+  // vector[M] w[D];
   
-  for (i in 1:D)
-    w[i] = 1/alpha[i] * w_std[i];
+  // for (i in 1:D)
+    // w[i] = 1/alpha[i] * w_std[i];
   
-  for (i in 1:D)
-    for (j in 1:M)
-      W[j, i] = w[i][j];
+  // for (i in 1:D)
+    // for (j in 1:M)
+      // W[j, i] = w[i][j];
       
   z[1] = z_std[1];
   for (i in 2:N) {
@@ -46,7 +50,7 @@ transformed parameters {
 model {
   vector[M] yi;
   
-  vol ~ gamma(a_vol, b_vol);
+  // vol ~ gamma(a_vol, b_vol);
   
   // z[1] ~ normal(0, 1);
   // for (i in 2:N)
@@ -63,8 +67,8 @@ model {
   // for (i in 1:D)
   //   w[i] ~ normal(0, 1/alpha[i]);
   
-  for (i in 1:D)
-    w_std[i] ~ normal(0, 1);
+  // for (i in 1:D)
+    // w_std[i] ~ normal(0, 1);
   
   for (i in 1:N) {
     yi = W*z[i]+mu;

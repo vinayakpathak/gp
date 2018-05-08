@@ -1,5 +1,7 @@
 source("functions.R")
 
+n <- 2
+train_and_plot(10)
 trades <- read.csv("trades.csv")
 trades["DateTime"] <- paste(trades$date, trades$TimeStamp)
 trades <- trades %>% filter(date != '04/04/2018')
@@ -10,7 +12,7 @@ trades <- trades %>% mutate(Inst = if_else(alias=="CA2Y", 1,
 # trades <- trades %>% filter(date %in% c('21/03/2018', '20/03/2018', '19/03/2018'))
 trades <- trades %>% filter(date %in% c('21/03/2018'))
 
-trades <- head(trades, 10)
+trades <- head(trades, n)
 nrow(trades)
 
 options(digits.secs=3)
@@ -46,13 +48,18 @@ t
 qty <- trades$QtyNominal/1e6
 qty
 vol_init <- 1e-8
-a_vol <- 1
-b_vol <- 1
+a_vol <- 0.001
+b_vol <- 0.001
 noise <- rep(100, M)
 noise
 beta <- 0.001
 a_alpha <- 0.001
 b_alpha <- 0.001
+# x = seq(0.1, 20, by = 0.001)
+# plot(x, dgamma(x, shape = a_alpha, rate = b_alpha))
+samples <- rgamma(1000000, shape = a_alpha, rate = b_alpha)
+mean(samples)
+sd(samples)
 vol <- 0.01
 W <- matrix(c(1, 1, 1,
          1, 1, -1,
@@ -63,8 +70,10 @@ data_list <- list(N = N, M = M, D = D, y = y, inst = inst, t = t, qty = qty,
                   vol_init = vol_init, a_vol = a_vol, b_vol = b_vol, noise = noise,
                   beta = beta, a_alpha = a_alpha, b_alpha = b_alpha, vol = vol, W = W)
 #View(trades)
-fit <- stan(file = "alltoall.stan", data = data_list, chains = 2, iter = 5000, 
-            control = list(max_treedepth = 20, adapt_delta = 0.8, stepsize = 1), seed = 123456)
+fit <- stan(file = "alltoall.stan", data = data_list, chains = 1, iter = 2000, 
+            control = list(max_treedepth = 12, adapt_delta = 0.8, stepsize = 1), seed = 123456)
+m <- stan_model(file = "alltoall.stan")
+fit <- vb(m, data = data_list, algorithm="meanfield", iter=30000, seed=123456)
 print(fit)
 summary(fit)
 par2y <- sapply(seq(1:N), function(i) {paste("y_sim[", i, ", 1]", sep="")})
@@ -92,6 +101,14 @@ ss <- s$summary
 trades$sim30y25 <- ss[, "25%"]
 trades$sim30y75 <- ss[, "75%"]
 
+trades %>% 
+  ggplot(aes(x = dt)) +
+  geom_point(aes(y = Column3, size = QtyNominal, color = alias)) +
+  geom_ribbon(aes(ymin = sim2y25, ymax = sim2y75), alpha = 0.3) +
+  geom_ribbon(aes(ymin = sim5y25, ymax = sim5y75), alpha = 0.3) +
+  geom_ribbon(aes(ymin = sim10y25, ymax = sim10y75), alpha = 0.3) +
+  geom_ribbon(aes(ymin = sim30y25, ymax = sim30y75), alpha = 0.3) +
+  labs(x = "Time", y = "Trade level (yield)", size = "Qty", color="Inst")
 
 m2y <- get_posterior_mean(fit, pars = par2y)
 m5y <- get_posterior_mean(fit, pars = par5y)
@@ -103,6 +120,8 @@ trades$sim5y <- m5y[,"mean-all chains"]
 trades$sim10y <- m10y[,"mean-all chains"]
 trades$sim30y <- m30y[,"mean-all chains"]
 
+
+
 trades %>% 
   ggplot(aes(x = dt)) +
   geom_point(aes(y = Column3, size = QtyNominal, color = alias)) +
@@ -111,31 +130,26 @@ trades %>%
   geom_point(aes(y = sim10y, alpha = 0.1)) +
   geom_point(aes(y = sim30y, alpha = 0.1))
 
-trades %>% 
-  ggplot(aes(x = dt)) +
-  geom_point(aes(y = Column3, size = QtyNominal, color = alias)) +
-  geom_ribbon(aes(ymin = sim2y25, ymax = sim2y75, alpha = 0.3)) +
-  geom_ribbon(aes(ymin = sim5y25, ymax = sim5y75, alpha = 0.3))
-#  geom_ribbon(aes(ymin = sim10y25, ymax = sim10y75, alpha = 0.3)) +
-#  geom_ribbon(aes(ymin = sim30y25, ymax = sim30y75, alpha = 0.3))
+
 trades
 
 launch_shinystan(fit)
 
 fit_data <- as.data.frame(fit)
-mean(fit_data$`w[1,1]`)
-mean(fit_data$`w[1,2]`)
-mean(fit_data$`w[1,3]`)
-mean(fit_data$`w[1,4]`)
-mean(fit_data$`w[2,1]`)
-mean(fit_data$`w[2,2]`)
-mean(fit_data$`w[2,3]`)
-mean(fit_data$`w[2,4]`)
-mean(fit_data$`w[3,1]`)
-mean(fit_data$`w[3,2]`)
-mean(fit_data$`w[3,3]`)
-mean(fit_data$`w[3,4]`)
-
+W_post_mean <- matrix(c(mean(fit_data$`w[1,1]`),
+                        mean(fit_data$`w[1,2]`),
+                        mean(fit_data$`w[1,3]`),
+                        mean(fit_data$`w[1,4]`),
+                        mean(fit_data$`w[2,1]`),
+                        mean(fit_data$`w[2,2]`),
+                        mean(fit_data$`w[2,3]`),
+                        mean(fit_data$`w[2,4]`),
+                        mean(fit_data$`w[3,1]`),
+                        mean(fit_data$`w[3,2]`),
+                        mean(fit_data$`w[3,3]`),
+                        mean(fit_data$`w[3,4]`)),
+                      nrow=4, ncol=3)
+W_post_mean
 sd(fit_data$`w[1,1]`)
 sd(fit_data$`w[1,2]`)
 sd(fit_data$`w[1,3]`)

@@ -2,3 +2,4 @@
 .Rhistory
 *.rds
 .RData
+.DS_Store

@@ -1,5 +1,5 @@
 source("functions.R")
-
-for (i in 2:367) {
+#1 to 48 done
+for (i in 100:367) {
   train_and_plot(i)
 }

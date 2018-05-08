@@ -1,7 +1,8 @@
 source("functions.R")
 
-n <- 2
+
 train_and_plot(10)
+n <- 10
 trades <- read.csv("trades.csv")
 trades["DateTime"] <- paste(trades$date, trades$TimeStamp)
 trades <- trades %>% filter(date != '04/04/2018')
@@ -101,13 +102,23 @@ ss <- s$summary
 trades$sim30y25 <- ss[, "25%"]
 trades$sim30y75 <- ss[, "75%"]
 
+trades <- trades %>% mutate(alpha2y = if_else(sim2y75 - sim2y25 < 1, 0.3, 0))
+trades <- trades %>% mutate(alpha5y = if_else(sim5y75 - sim5y25 < 1, 0.3, 0))
+trades <- trades %>% mutate(alpha10y = if_else(sim10y75 - sim10y25 < 1, 0.3, 0))
+trades <- trades %>% mutate(alpha30y = if_else(sim30y75 - sim30y25 < 1, 0.3, 0))
+
+
+plot2y <- if ("CA2Y" %in% unique(trades$alias)) geom_ribbon(aes(ymin = sim2y25, ymax = sim2y75), alpha=0.3)
+plot5y <- if ("CA5Y" %in% unique(trades$alias)) geom_ribbon(aes(ymin = sim5y25, ymax = sim5y75), alpha = 0.3)
+plot10y <- if ("CA10Y" %in% unique(trades$alias)) geom_ribbon(aes(ymin = sim10y25, ymax = sim10y75), alpha = 0.3)
+plot30y <- if ("CA30Y" %in% unique(trades$alias)) geom_ribbon(aes(ymin = sim30y25, ymax = sim30y75), alpha = 0.3)
 trades %>% 
   ggplot(aes(x = dt)) +
   geom_point(aes(y = Column3, size = QtyNominal, color = alias)) +
-  geom_ribbon(aes(ymin = sim2y25, ymax = sim2y75), alpha = 0.3) +
-  geom_ribbon(aes(ymin = sim5y25, ymax = sim5y75), alpha = 0.3) +
-  geom_ribbon(aes(ymin = sim10y25, ymax = sim10y75), alpha = 0.3) +
-  geom_ribbon(aes(ymin = sim30y25, ymax = sim30y75), alpha = 0.3) +
+  plot2y +
+  plot5y +
+  plot10y +
+  plot30y +
   labs(x = "Time", y = "Trade level (yield)", size = "Qty", color="Inst")
 
 m2y <- get_posterior_mean(fit, pars = par2y)

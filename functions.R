@@ -142,7 +142,8 @@ train_and_plot <- function(n) {
   trades %>% mutate(Y = if_else(alias == "CA2Y", Column3, NULL)) %>%
     ggplot(aes(x = dt)) +
     geom_point(aes(y = Y, size = QtyNominal, color=alias)) +
-    plot2y
+    plot2y +
+    labs(x = "Time", y = "Trade level (yield)", size = "Qty")
   ggsave(filename = paste("~/ml/gp/graphs/2y/latentpca", n, "_2y.png", sep=""))
   
   trades %>% mutate(Y = if_else(alias == "CA5Y", Column3, NULL)) %>%

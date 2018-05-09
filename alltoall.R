@@ -107,7 +107,7 @@ trades <- trades %>% mutate(alpha5y = if_else(sim5y75 - sim5y25 < 1, 0.3, 0))
 trades <- trades %>% mutate(alpha10y = if_else(sim10y75 - sim10y25 < 1, 0.3, 0))
 trades <- trades %>% mutate(alpha30y = if_else(sim30y75 - sim30y25 < 1, 0.3, 0))
 
-
+trades %>% tail(5)
 plot2y <- if ("CA2Y" %in% unique(trades$alias)) geom_ribbon(aes(ymin = sim2y25, ymax = sim2y75), alpha=0.3)
 plot5y <- if ("CA5Y" %in% unique(trades$alias)) geom_ribbon(aes(ymin = sim5y25, ymax = sim5y75), alpha = 0.3)
 plot10y <- if ("CA10Y" %in% unique(trades$alias)) geom_ribbon(aes(ymin = sim10y25, ymax = sim10y75), alpha = 0.3)
@@ -120,6 +120,20 @@ trades %>%
   plot10y +
   plot30y +
   labs(x = "Time", y = "Trade level (yield)", size = "Qty", color="Inst")
+
+trades %>% mutate(Y = if_else(alias == "CA2Y", Column3, NULL)) %>%
+  ggplot(aes(x = dt)) +
+  geom_point(aes(y = Y, size = QtyNominal, color=alias)) +
+  plot2y
+  
+trades2y <- trades %>% filter(alias == "CA2Y")
+options(digits.secs=3)
+dt2y <- strptime(trades2y$DateTime, format="%d/%m/%Y %H:%M:%OS")
+trades2y %>% 
+  ggplot(aes(x = dt2y)) +
+  geom_point(aes(y = Column3, size = QtyNominal, color = alias)) +
+  plot2y
+  
 
 m2y <- get_posterior_mean(fit, pars = par2y)
 m5y <- get_posterior_mean(fit, pars = par5y)

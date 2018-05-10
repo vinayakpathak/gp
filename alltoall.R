@@ -32,7 +32,9 @@ colnames(trades)
 
 trades %>% 
   ggplot(aes(x = dt)) +
-  geom_point(aes(y = Column3, size = QtyNominal, color = alias))
+  geom_point(aes(y = Column3, size = QtyNominal, color = alias)) +
+  labs(y = "Traded level (yield)", x = "Time", color = "Inst", size = "Qty")
+ggsave(filename = "~/ml/gp/alltrades.png")
 
 N <- nrow(trades)
 N

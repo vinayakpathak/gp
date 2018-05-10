@@ -5,6 +5,6 @@ source("functions.R")
 #341 to 367 done
 
 
-for (i in 367:323) {
+for (i in 299:207) {
   train_and_plot(i)
 }

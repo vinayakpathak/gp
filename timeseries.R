@@ -3,8 +3,8 @@ source("functions.R")
 trades <- read.csv("trades.csv")
 trades["DateTime"] <- paste(trades$date, trades$TimeStamp)
 trades <- trades %>% filter(date != '04/04/2018')
-trades <- trades %>% filter(date %in% c('21/03/2018', '20/03/2018', '19/03/2018'))
-# trades <- trades %>% filter(date %in% c('21/03/2018'))
+# trades <- trades %>% filter(date %in% c('21/03/2018', '20/03/2018', '19/03/2018'))
+trades <- trades %>% filter(date %in% c('21/03/2018'))
 trades
 trades2y <- trades %>% 
   filter(alias == "CA2Y") %>%

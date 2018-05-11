@@ -17,12 +17,10 @@ train_single_and_plot <- function(n, inst) {
 
   options(digits.secs=3)
   dt <- strptime(trades2y$DateTime, format="%d/%m/%Y %H:%M:%OS")
-
   timeDiff <- c(0)
   for (i in 2:nrow(trades2y)) {
     timeDiff[i] <- difftime(dt[i], dt[i-1], units = "secs")
   }
-
   trades2y["TimeDiff"] <- timeDiff
   trades2y
 
@@ -49,7 +47,7 @@ b_vol <- 0.0001
 # mean(samples)
 # sd(samples)
 # sd(samples) * sd(samples)
-
+print(4)
 a_noise <- 0.25
 b_noise <- 0.0025
 # a_noise <- 0.0001
@@ -93,7 +91,6 @@ fit_data <- as.data.frame(fit)
 # colnames(fit_data)
 # length(colnames(fit_data))
 
-
 zs <- fit_data %>% summarise_all(mean)
 z5 <- fit_data %>% summarise_all(quantSmall)
 z95 <- fit_data %>% summarise_all(quantBig)
@@ -116,11 +113,12 @@ trades2y %>%
   ggplot(aes(x = dt)) +
   geom_point(aes(y = Column3, size = QtyNominal)) +
   geom_ribbon(aes(ymin = z5, ymax = z95, alpha = 0.3)) +
-  labs(y = "Trade level (yield)", x = "Time", size = "Qty")
+  labs(x = "Time", y = "Trade level (yield)", size = "Qty")
 ggsave(paste("~/ml/gp/graphs/single/2y/", n, ".png", sep=""))
 }
 
-for (i in 1:367) {
+for (i in 145:136) {
+  # print(i)
   train_single_and_plot(i, "CA2Y")
 }
 View(trades2y)

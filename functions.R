@@ -30,11 +30,11 @@ plot_series <- function(df) {
 }
 
 quantSmall <- function(x) {
-  quantile(x, probs = c(0.05))
+  quantile(x, probs = c(0.25))
 }
 
 quantBig <- function(x) {
-  quantile(x, probs = c(0.95))
+  quantile(x, probs = c(0.75))
 }
 
 
